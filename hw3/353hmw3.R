@@ -75,9 +75,6 @@ cv.lm(sh, c(model1$call[[2]], model2$call[[2]], model3$call[[2]], model4$call[[2
 #Question 4
 #----------------
 sh$MAPEinv = 1/sh$MAPE
-plot(Return_10_fwd ~ MAPE, data = sh, pch = 20)
-abline(model5, col='cornflowerblue', lwd = 2)
-abline(model6, col='coral', lwd=2)
 
 sh.na = na.omit(sh)
 
@@ -87,13 +84,20 @@ model.np = npreg(Return_10_fwd ~ MAPE,
                  gradients=TRUE,
                  data=sh.na)
 
+plot(Return_10_fwd ~ MAPE, data = sh, pch = 20,
+     main="Returns vs MAPE", ylab="Returns", xlab="MAPE")
+abline(model5, col='cornflowerblue', lwd = 2)
+abline(model6, col='coral', lwd=2)
 lines(sh$MAPEinv ~ sh$MAPE, col = 'seagreen3', lwd = 2)
 lines(sh.na$MAPE[order(sh.na$MAPE)], 
       fitted(model.np)[order(sh.na$MAPE)], 
       col='darkorchid3', lwd=2)
+legend('topright', 
+       c("LM: MAPE", "LM: 1/MAPE", "Simple Model: 1/MAPE", "NP: MAPE"),
+       col=c('cornflowerblue', 'coral', 'seagreen3', 'darkorchid3'),
+       pch=rep(20,4), cex=0.75)
 
-lines(sh$MAPE[x.ord], fitted(kreg)[x.ord], col='darkorchid3', lwd=1)
-curve(x=sorted.x, y=fitted(kreg), col = 'darkorchid3', lwd = 2)
+
 #----------------
 #Question 5
 #----------------
@@ -108,8 +112,22 @@ summary(model8)
 #Question 6
 #----------------
 
+# (a)
+confint(model6, level=0.9)
 
+#(b)
+lm.coef = function(formula, data, idx) {
+  d = data[idx,]
+  fit = lm(formula, data=d)
+  return(coef(fit))
+}
 
+model6.boot = boot(data=sh, 
+                   statistic=lm.coef, 
+                   R=2000, 
+                   formula=Return_10_fwd~MAPE)
+
+boot.ci(model6.boot, type="bca", conf=0.9)
 
 #----------------
 #Question 7
