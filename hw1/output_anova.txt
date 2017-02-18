@@ -1,0 +1,13 @@
+Analysis of Variance Table
+
+Response: naCAPA$Median_house_value
+                                      Df     Sum Sq    Mean Sq    F value    Pr(>F)
+naCAPA$Mean_household_income           1 2.2498e+14 2.2498e+14 17715.9124 < 2.2e-16
+naCAPA$Median_household_income         1 1.3818e+12 1.3818e+12   108.8115 < 2.2e-16
+naCAPA$POPULATION                      1 1.5611e+10 1.5611e+10     1.2293    0.2676
+naCAPA$Total_units                     1 4.5492e+11 4.5492e+11    35.8233 2.231e-09
+naCAPA$Vacant_units                    1 6.1315e+11 6.1315e+11    48.2835 3.905e-12
+naCAPA$Owners                          1 8.2489e+13 8.2489e+13  6495.6476 < 2.2e-16
+naCAPA$Median_rooms                    1 2.2344e+13 2.2344e+13  1759.5391 < 2.2e-16
+naCAPA$Mean_household_size_owners      1 1.0705e+12 1.0705e+12    84.2994 < 2.2e-16
+naCAPA$Mean_household_size_renters     1 7.0850e+11 7.0850e+11    55.7918 8.691e-14           

@@ -1,0 +1,14 @@
+Coefficients:
+                              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                  2.716e+05  2.857e+04   9.508  < 2e-16 ***
+Mean_household_income        4.765e+00  1.065e-01  44.746  < 2e-16 ***
+Median_household_income      8.680e-01  1.320e-01   6.577 5.01e-11 ***
+POPULATION                  -1.346e+01  1.475e+00  -9.124  < 2e-16 ***
+Total_units                  3.002e+01  4.335e+00   6.925 4.61e-12 ***
+Vacant_units                -3.773e+01  6.328e+00  -5.963 2.56e-09 ***
+Owners                      -1.938e+03  8.486e+01 -22.834  < 2e-16 ***
+Median_rooms                -2.930e+04  2.194e+03 -13.352  < 2e-16 ***
+Mean_household_size_owners   1.030e+04  2.132e+03   4.833 1.37e-06 ***
+Mean_household_size_renters -1.670e+04  1.813e+03  -9.211  < 2e-16 ***
+LATITUDE                    -8.526e+03  5.450e+02 -15.645  < 2e-16 ***
+LONGITUDE                   -2.661e+03  8.745e+01 -30.425  < 2e-16 ***
