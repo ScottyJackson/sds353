@@ -66,10 +66,10 @@ cv.lm(sh, c(model1$call[[2]], model2$call[[2]], model3$call[[2]], model4$call[[2
 #Question 3
 #----------------
 
-model6 = lm(Return_10_fwd ~ 1/MAPE, data = sh)
+model6 = lm(Return_10_fwd ~ sapply(MAPE, function(x) 1 / x), data = sh)
 summary(model6)
 
-cv.lm(sh, c(model1$call[[2]], model2$call[[2]], model3$call[[2]], model4$call[[2]], model5$call[[2]], model6$call[[2]]), nfolds = 5)
+cv.lm(sh, c(model6$call[[2]]), nfolds = 5)
 
 #----------------
 #Question 4
@@ -87,11 +87,11 @@ model.np = npreg(Return_10_fwd ~ MAPE,
 plot(Return_10_fwd ~ MAPE, data = sh, pch = 20,
      main="Returns vs MAPE", ylab="Returns", xlab="MAPE")
 abline(model5, col='cornflowerblue', lwd = 2)
-abline(model6, col='coral', lwd=2)
+abline(model6, col='coral', lwd=2, untf=T)
 lines(sh$MAPEinv ~ sh$MAPE, col = 'seagreen3', lwd = 2)
 lines(sh.na$MAPE[order(sh.na$MAPE)], 
       fitted(model.np)[order(sh.na$MAPE)], 
-      col='darkorchid3', lwd=2)
+      col='gold', lwd=2)
 legend('topright', 
        c("LM: MAPE", "LM: 1/MAPE", "Simple Model: 1/MAPE", "NP: MAPE"),
        col=c('cornflowerblue', 'coral', 'seagreen3', 'darkorchid3'),
@@ -116,6 +116,17 @@ summary(model8)
 confint(model6, level=0.9)
 
 #(b)
+sh = na.omit(sh)
+sh$yb = sh$Return_10_fwd
+B = 1000
+res = vector('numeric', length = B)
+for (b in 1:B) {
+  model = lm(yb ~ MAPEinv, data = sh)
+  res[b] = model$coefficients[[2]]
+  sh$yb = sh$MAPEinv * res[b] + sample(resid(model), replace=T)
+}
+
+#(c)
 lm.coef = function(formula, data, idx) {
   d = data[idx,]
   fit = lm(formula, data=d)
