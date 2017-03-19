@@ -1,4 +1,4 @@
-nampd <- read.csv('../Downloads/nampd.csv')
+nampd <- read.csv('Documents/homework/sds353/data/nampd.csv')
 nampd$mass <- exp(nampd$ln_mass)
 nampd$old_mass <- exp(nampd$ln_old_mass)
 
@@ -48,10 +48,10 @@ plot(nampd.na$ln_old_mass, nampd.na$ln_mass,
      col='darkgrey')
 lines(spl.fit, col='forestgreen', lwd=2)
 
-plot(nampd$old_mass, nampd$mass, 
+plot(nampd.na$old_mass, nampd.na$mass, 
      cex=.5,
      col='darkgrey')
-lines(exp(nampd.spl$x), exp(nampd.spl$y), col='forestgreen', lwd=2)
+lines(exp(spl.fit$x), exp(spl.fit$y), col='forestgreen', lwd=2)
 dev.off()
 
 resample <- function(x) {
@@ -149,7 +149,7 @@ rmass <- function(Xa, r, sigma) {
 }
 
 test.grid <- seq(x.min, x.max, length.out=150)
-plot(nampd$old_mass, nampd$mass, 
+plot(data$old_mass, data$mass, 
      cex=.5,
      col='darkgrey')
 lines(test.grid, exp(predict(spl.fit, data.frame(t=log(test.grid)))$y$t), col='forestgreen', lwd=2)
