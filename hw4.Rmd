@@ -41,8 +41,8 @@ $$
 $\lambda$ is a tuning parameter which controls how much the second term contributes to the cost function. As $\lambda \rightarrow 0$ then ridge regression just becomes the linear regression estimate. As $\lambda \rightarrow \infty$, the cost function will approach $\infty$, and so $||\beta||$ must approach 0. 
 
 ### (d)
-The code below demonstrates how the coefficients shrink to 0 as $\lambda$ gets big. This also explains why ridge regression is called a ***shrinkage estimator***,
-as it is simultaneously fitting weights under the constraint that the weights are shrunk by some amount controlled by the hyper-parameter $\lambda$.
+The plot below demonstrates how the coefficients shrink as $\lambda$ gets big. This also explains why ridge regression is called a ***shrinkage estimator***,
+as it is fitting weights under the constraint imposed by the regularization term, the contribution of which is controlled by the hyper-parameter $\lambda$.
 ```{r q8.8.2.d}
 Z <- runif(2000, -1, 1)
 epsilon <-  rnorm(2000, 0, 0.05)
@@ -58,14 +58,8 @@ X.test <- X[,1001:2000]
 y.train <- Y[1:1000]
 y.test <- Y[1001:2000]
 
-grid <- seq(0, 0.2, by=0.0005)
+grid <- seq(0, .5, by=0.005)
 Beta <- matrix(nrow=50, ncol=length(grid))
-
-for (i in 1:50) {
-  for (j in 1:length(grid)) {
-    Beta[i,j] <- ridge.coef(X.train[i,], y.train, grid[j])
-  }
-}
 
 ridge.mod <- glmnet(X.train %>% t(), y.train, alpha=0, lambda=grid)
 plot(1, type="n", 
@@ -78,9 +72,10 @@ grid()
 ```
 
 ### (e)
+As we can see, ridge regression preforms much better than just simple linear regression. 
 ```{r q8.8.2.e}
 ridge.mod <- cv.glmnet(X.train %>% t(), y.train, alpha=0, lambda=grid, type.measure='mse')
-cat('Min Lambda: ', ridge.mod$lambda.min, '\n')
+cat('Optimal Lambda from CV: ', ridge.mod$lambda.min, '\n')
 lm.mod <- lm(y.train ~ X.train %>% t())
 plot(ridge.mod)
 
