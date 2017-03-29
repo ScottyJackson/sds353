@@ -90,7 +90,7 @@ As we can see below, we get a coefficient of 0.141 for $\beta_0$, and 0.995 for 
 ```{r q1}
 nampd <- read.csv('data/nampd.csv')
 data <- nampd %>% 
-        select(., ln_old_mass, ln_mass) %>% 
+        dplyr::select(., ln_old_mass, ln_mass) %>% 
         na.omit()
 data$old_mass <- exp(data$ln_old_mass)
 data$mass <- exp(data$ln_mass)

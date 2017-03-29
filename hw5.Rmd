@@ -1,0 +1,87 @@
+---
+title: "Homework 5"
+author: "Scott Jackson & Weston Engelstad"
+date: "March 27, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(MASS)
+library(dplyr)
+library(glmnet)
+library(gam)
+```
+
+### 13.5
+
+## 2. 
+A regression tree is a linear smoother for a fixed partition because within a particular partition we take the average of those points as our estimate, e.g. $\frac{1}{N_c} \sum_{i \in c} y_i$ where $N_c$ is the number of points in that region. This implies that **INSERT LINEAR SMOOTHER EQUATION HERE** we have assigned zero weights to points not in the region, and so it is a linear smoother.
+
+## 5.
+***Proof by Induction***  
+Consider
+$$(*)\hspace{5mm}2|T|-1=N,$$
+Where $N$ is the number of nodes in a binary tree, and $|T|$ is the number of leaves.  
+
+Now take $|T| = 1$. Then we have N=1, and $2 - 1 = 1 = N$.  
+Take some $K > 1$, and suppose that $(*)$ holds true for all $|T| = K$.   
+Then 
+$$2(K + 1) - 1 = N + 2$$
+$$2K - 1 = N$$
+By the principle of induction it follows that $(*)$ is true for all $|T|$.
+
+### A.6. The Sound of Gunfire, off in the Distance 
+```{r data_prep}
+df.ch <- read.csv('data/ch.csv') %>% dplyr::select(., -X)
+```
+
+## 1.
+```{r q1}
+df <- df.ch %>% 
+      dplyr::select(., -country, -year) %>% 
+      na.omit()
+df$exports_2 <- df$exports^2
+
+lr.fit <- glm(start ~ ., family='binomial', data=df)
+summary(lr.fit)
+```
+Every predictor is significant at the $5\%$ level except `dominance`.
+
+## 2.
+# (a)
+```{r q2.a}
+india.1975 <- df.ch[df.ch$country == 'India' & df.ch$year == 1975,]
+india.1975$exports_2 <- india.1975$exports^2
+india.1975.school <- india.1975
+india.1975.school$schooling <- india.1975.school$schooling + 30
+india.1975.exports <- india.1975
+india.1975.exports$exports <- india.1975.exports$exports + 0.1
+india.1975.exports$exports_2 <- india.1975.exports$exports^2
+  
+newdata <- data.frame(rbind(india.1975, india.1975.school, india.1975.exports)) %>%
+           dplyr::select(., -country, -year) %>% 
+           na.omit()
+
+predict(lr.fit, newdata=newdata, type='response')
+```
+# (b)
+```{r q2.b}
+nigeria.1965 <- df.ch[df.ch$country == 'Nigeria' & df.ch$year == 1965,]
+nigeria.1965$exports_2 <- nigeria.1965$exports^2
+nigeria.1965.school <- nigeria.1965
+nigeria.1965.school$schooling <- nigeria.1965.school$schooling + 30
+nigeria.1965.exports <- nigeria.1965
+nigeria.1965.exports$exports <- nigeria.1965.exports$exports + 0.1
+nigeria.1965.exports$exports_2 <- nigeria.1965.exports$exports^2
+  
+newdata <- data.frame(rbind(nigeria.1965, nigeria.1965.school, nigeria.1965.exports)) %>%
+           dplyr::select(., -country, -year) %>% 
+           na.omit()
+
+predict(lr.fit, newdata=newdata, type='response')
+```
+# (c)
+
+
+
