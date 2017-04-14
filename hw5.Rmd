@@ -12,13 +12,45 @@ library(dplyr)
 library(glmnet)
 library(gam)
 ```
+# 11.9
+## 1.
+(a) Show that $P(Y \neq \widehat{Y}) = E[(Y-\widehat{Y})^2]$
+$$E[(Y-\widehat{Y})^2] = E[Z], \text{ } Z \sim Bernoulli(p)$$
+$$
+\begin{aligned}
+p &= P(Z=1)\\
+&= P(Y \neq \widehat{Y})\\
+&= E(Z)\\
+&= E[(Y-\widehat{Y})^2]
+\end{aligned}
+$$
 
-### 13.5
+(b) Show that $E[(Y - \widehat{Y})^2 | X=x] = P(Y=1 | X=x)(1 - 2 \widehat{Y}(x)) + \widehat{Y}^2(x)$
+$$
+\begin{aligned}
+&E[Y^2 - 2Y\widehat{Y} + \widehat{Y}^2 | X=x] \\
+&= E[Y^2 \mid X=x] - 2E[Y\widehat{Y} | X=x] + E[\widehat{Y}^2 | X=x]\\
+&= P(Y=1 | X=x) - 2 \widehat{Y}(x)P(Y=1 | X=x) + \widehat{Y}^2(x)\\
+&= P(Y=1 | X=x)(1 - 2 \widehat{Y}(x)) + \widehat{Y}^2(x)
+\end{aligned}
+$$
 
-## 2. 
-A regression tree is a linear smoother for a fixed partition because within a particular partition we take the average of those points as our estimate, e.g. $\frac{1}{N_c} \sum_{i \in c} y_i$ where $N_c$ is the number of points in that region. This implies that **INSERT LINEAR SMOOTHER EQUATION HERE** we have assigned zero weights to points not in the region, and so it is a linear smoother.
+(c) Show that if $P(Y=1 | X=x) > 0.5$, the risk of misclassification is minimized by choosing $\widehat{Y}=1$, if $P(Y=1 | X=x) < 0.5$,  the risk of misclassification is minimized by choosing $\widehat{Y}=0$, and if $P(Y=1 | X=x) = 0.5$ either choice is equally good
 
-## 5.
+First we differentiate with respect to $\widehat{Y}$ and find a minimum
+$$\frac{\partial}{\partial \widehat{Y}(x)}P(Y=1 | X=x)(1 - 2 \widehat{Y}(x)) + \widehat{Y}^2(x) = \widehat{Y}(x) - P(Y=1 | X=x)$$
+therefore we acheieve a minimum when $\widehat{Y} = P(Y=1 | X=x)$
+
+For the first case when $P(Y=1 | X=x) > 0.5$, since $\widehat{Y}(x) \in \{0,1\}$, we minimize the expression above by choosing $\widehat{Y} = 1$.  
+The same argument applies for when $P(Y=1 | X=x) < 0.5$.  
+For the final case, we have $0.5(1 - 2\widehat{Y}(x)) + \widehat{Y}^2(x))$, which is equal to $0.5$ for either choice of $\widehat{Y}(x)$
+
+# 13.5
+
+### 2. 
+A regression tree is a linear smoother for a fixed partition because within a particular partition we take the average of those points as our estimate, e.g. $\widehat{\mu}(x)=\frac{1}{N_c} \sum_{i \in c} y_i$ where $N_c$ is the number of points in that region. This implies we have a model of the form $\widehat{\mu}(x)=\sum_i y_i \widehat{w}(x_i,x)$, where we assign zero weights to points not in the region, and so it is a linear smoother.
+
+### 5.
 ***Proof by Induction***  
 Consider
 $$(*)\hspace{5mm}2|T|-1=N,$$
@@ -31,7 +63,7 @@ $$2(K + 1) - 1 = N + 2$$
 $$2K - 1 = N$$
 By the principle of induction it follows that $(*)$ is true for all $|T|$.
 
-### A.6. The Sound of Gunfire, off in the Distance 
+# A.6. The Sound of Gunfire, off in the Distance 
 ```{r data_prep}
 df.ch <- read.csv('data/ch.csv') %>% dplyr::select(., -X)
 ```
@@ -49,7 +81,7 @@ summary(lr.fit)
 Every predictor is significant at the $5\%$ level except `dominance`.
 
 ## 2.
-# (a)
+### (a)
 ```{r q2.a}
 india.1975 <- df.ch[df.ch$country == 'India' & df.ch$year == 1975,]
 india.1975$exports_2 <- india.1975$exports^2
@@ -65,7 +97,12 @@ newdata <- data.frame(rbind(india.1975, india.1975.school, india.1975.exports)) 
 
 predict(lr.fit, newdata=newdata, type='response')
 ```
-# (b)
+
+For a country just like India in 1975, we assign a 35% chance of a war starting.  
+If the secondary school enrollment is 30 points higher this dips to 17%.  
+If the ratio of commodity exports to GDP is 0.1 higher this probability jumps to 70%.
+
+### (b)
 ```{r q2.b}
 nigeria.1965 <- df.ch[df.ch$country == 'Nigeria' & df.ch$year == 1965,]
 nigeria.1965$exports_2 <- nigeria.1965$exports^2
@@ -81,7 +118,118 @@ newdata <- data.frame(rbind(nigeria.1965, nigeria.1965.school, nigeria.1965.expo
 
 predict(lr.fit, newdata=newdata, type='response')
 ```
-# (c)
+
+For a country just like Nigeria in 1965, we assign a 17% chance of a war starting.  
+If the secondary school enrollment is 30 points higher this dips to 7.5%.  
+If the ratio of commodity exports to GDP is 0.1 higher this probability jumps to 33%.
+
+### (c)
+The changes in (a) and (b) are not equal because logistic regression is fitting the model to the log odds, e.g. $\log(\frac{p}{1-p}) = \beta_o + X \beta$, so how much the probability changes by is dependent on the inital values of the design matrix. In other words when we make a change in an $x_i$, it will have an exponential effect on the probabilities. 
+
+## 3.
+```{r q.3}
+probs <- predict(lr.fit, newdata = df, type='response')
+pred <- rep("War", dim(df)[1])
+pred[probs < .5] = "Peace"
+
+print('(a)')
+table(pred, df$start)
+
+sprintf('(b) fraction of correct predictions: %f', (637+3)/688)
+
+sprintf('(c) fraction of correct predicitons always predicting \'no-war\': %f', 642/688)
+```
+
+## 4.
+```{r q4}
+freq.vs.prob <- function(p.lower, p.upper = p.lower + 0.1, model=lr.fit,
+events = (df$start == 1)) {
+  fitted.probs <- fitted(model)
+  indices <- (fitted.probs >= p.lower) & (fitted.probs < p.upper)
+  ave.prob <- mean(fitted.probs[indices])
+  frequency <- mean(events[indices])
+  se <- sqrt(ave.prob * (1 - ave.prob)/sum(indices))
+  return(c(frequency = frequency, ave.prob = ave.prob, se = se))
+}
+
+freq.probs <- sapply(seq(0, 0.9, 0.1), freq.vs.prob)
+freq.probs <- data.frame(frequency=freq.probs['frequency',], 
+                         ave.prob=freq.probs['ave.prob',], se=freq.probs['se',])
+
+plot(frequency ~ ave.prob, data=freq.probs, xlim=c(0,1), ylim=c(0,1), 
+     xlab='Predicted Probabilities', ylab='Observed Frequencies')
+rug(fitted(lr.fit), col='grey')
+abline(0, 1, col='grey')
+```
+
+We can see from the plot that the correlation between predicted probabilities and observed frequencies does not exactly go up the 45-degree diagonal - rather it appears to plateau somewhat. Another observation worth noting is that there are very few instances where we assign high probability, and none greater than 0.7. If the model is correct it should indeed follow this line; for example if we assign probability 0.2 to some subset of the data for a particular class, we would expect 20% of that subset to be of said class. The observed frequencies do generally increase, but it is somewhat noisy and certainly not perfect, especially as we go to higher probabilities. This makes some sense if we look at the distribution of data - there are many examples for no civil war, but very few for the onset of ones, so the model has a difficult time predicting when one may start. It may also be the case that the data is not linearly separable, and so logistic regression is not able to capture a good decision boundary.    
+
+## 5.
+```{r q5}
+gam.fit <- gam(I(start >.5) ~ s(exports) + s(schooling) + s(growth) + s(peace) 
+               + s(concentration) + s(lnpop) + s(fractionalization) + as.factor(dominance),
+               family = 'binomial', data = df)
+par(mfrow=c(2,4))
+plot(gam.fit, se = T, col = "blue")
+```
+
+From these plots we can see that `schooling`, `lnpop`, and `growth` are roughly linear, as well as `dominance`, however dominance was fit with a linear funcion (so it better be!). The other predictors are very much non-linear, which might suggest why the logistic regression model performed so poorly. 
+
+## 6.
+```{r q6}
+gamprobs <- predict(gam.fit, newdata = df, type='response')
+gampred <- rep("War", dim(df)[1])
+gampred[gamprobs < .5] = "Peace"
+table(gampred, df$start)
+
+sprintf('GAM Correct fraction of predictions: %f', (639+7)/688)
+```
+
+With an accuracy of 93.9%, the GAM model is better than both the logistic regression model, and the peace-loving pundit.
+
+## 7.
+```{r q7}
+freq.probs <- sapply(seq(0, 0.9, 0.1), freq.vs.prob, model=gam.fit)
+freq.probs <- data.frame(frequency=freq.probs['frequency',], 
+                         ave.prob=freq.probs['ave.prob',], se=freq.probs['se',])
+
+plot(frequency ~ ave.prob, data=freq.probs, xlim=c(0,1), ylim=c(0,1), 
+     xlab='Predicted Probabilities', ylab='Observed Frequencies')
+rug(fitted(lr.fit), col='grey')
+abline(0, 1, col='grey')
+```
+
+From the plot above it is apparent that the GAM model is calibrated far better than the logistic regression model; there is once again some noise about the diagonal but it is less pronounced. In addition to this, our high predicted probabilities correspond well to higher observed frequencies (if anything we underestimate), which was where the logistic regression model really struggled.
+
+## 8.
+```{r q8}
+simulate.from.logr <- function(df, mdl) {
+  probs <- predict(mdl, newdata = df, type = "response")
+  df$y <- rbinom(n = nrow(df), size = 1, prob = probs)
+  return(df)
+}
+
+delta.deviance.sim <- function(df, mdl) {
+  sim.df <- simulate.from.logr(df, mdl)
+  GLM.dev <- glm(start ~ ., family='binomial', data=sim.df)$deviance
+  GAM.dev <- gam(I(start == 1) ~ s(exports) + s(schooling) + s(growth) 
+                 + s(peace) + s(concentration) + s(lnpop) 
+                 + s(fractionalization) + as.factor(dominance),
+                 family = 'binomial', data = sim.df)$deviance
+  return(GLM.dev - GAM.dev)
+}
+
+delta.dev.observed <- lr.fit$deviance - gam.fit$deviance
+sprintf('Observed difference in deviance: %f', delta.dev.observed)
+delta.dev <- replicate(100, delta.deviance.sim(df, lr.fit))
+sprintf('Average simulated difference in deviance: %f', mean(delta.dev))
+
+hist(delta.dev, main = "", xlab = "Amount by which GAM fits better than logistic regression")
+abline(v = delta.dev.observed, col = "grey", lwd = 4)
 
 
+p.value <- (1 + sum(delta.dev > delta.dev.observed)) / (1 + length(delta.dev))
+sprintf('p-value: %f', p.value)
+```
 
+We can conclude that the GAM model is preferred in this situation. Based on this test, GAM is on average better than logistic regression by 31.46 deviance, with a p-value of < .01, so we can be quite confident in this result. In addition, based on the non-linearity of partial predictors from *5.*, that a linear predictor such as logistic regression is not flexible enough to fit this data.
